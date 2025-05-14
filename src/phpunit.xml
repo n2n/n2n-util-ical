@@ -1,0 +1,12 @@
+<phpunit bootstrap="test/bootstrap.php">
+    <coverage>
+        <include>
+            <directory suffix=".php">ical</directory>
+        </include>
+    </coverage>
+    <testsuites>
+        <testsuite name="Global Test Suite">
+            <directory>test</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
