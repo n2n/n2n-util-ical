@@ -33,6 +33,9 @@ class IcalEvent extends IcalComponent {
 
 		if (null !== $dateEnd) {
 			$this->dateEnd = $dateEnd;
+			if ($this->timeOmitted) {
+				$this->dateEnd->modify('+1 day');
+			}
 		} else if (!$timeOmitted) {
 			$this->dateEnd = clone $dateStart;
 			$this->dateEnd->setTime(23, 59, 59);
