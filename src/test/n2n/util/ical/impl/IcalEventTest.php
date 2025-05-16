@@ -12,7 +12,7 @@ class IcalEventTest extends TestCase {
 	public function testIcalComponentsWithoutTimeNoDateEnd() {
 		$icalEvent = IcalComponents::eventWithoutTime('uidString', new \DateTime('2025-05-02T05:02:00'));
 		$this->assertEquals(new \DateTime('2025-05-02T05:02:00'), $icalEvent->getDateStart());
-		$this->assertEquals((new \DateTime('2025-05-02T05:02:00'))->add(new \DateInterval('P1D')), $icalEvent->getDateEnd());
+		$this->assertEquals(new \DateTime('2025-05-02T05:02:00'), $icalEvent->getDateEnd());
 
 		$this->assertEquals((new \DateTime('2025-05-02T05:02:00'))->format('Ymd'), $icalEvent->getProperties()['DTSTART']);
 		$this->assertEquals((new \DateTime('2025-05-02T05:02:00'))->add(new \DateInterval('P1D'))->format('Ymd'),
@@ -31,7 +31,7 @@ class IcalEventTest extends TestCase {
 	public function testIcalComponentsWithoutTimeDateEnd() {
 		$icalEvent = IcalComponents::eventWithoutTime('uidString', new \DateTime('2025-05-02T05:02:00'), new \DateTime('2025-06-03T05:02:00'));
 		$this->assertEquals(new \DateTime('2025-05-02T05:02:00'), $icalEvent->getDateStart());
-		$this->assertEquals(new \DateTime('2025-06-04T05:02:00'), $icalEvent->getDateEnd());
+		$this->assertEquals(new \DateTime('2025-06-03T05:02:00'), $icalEvent->getDateEnd());
 
 		$this->assertEquals((new \DateTime('2025-05-02T05:02:00'))->format('Ymd'), $icalEvent->getProperties()['DTSTART']);
 		$this->assertEquals((new \DateTime('2025-06-04T05:02:00'))->format('Ymd'), $icalEvent->getProperties()['DTEND']);

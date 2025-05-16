@@ -33,15 +33,11 @@ class IcalEvent extends IcalComponent {
 
 		if (null !== $dateEnd) {
 			$this->dateEnd = $dateEnd;
-			if ($this->timeOmitted) {
-				$this->dateEnd->modify('+1 day');
-			}
 		} else if (!$timeOmitted) {
 			$this->dateEnd = clone $dateStart;
 			$this->dateEnd->setTime(23, 59, 59);
 		} else {
 			$this->dateEnd = clone $dateStart;
-			$this->dateEnd->modify('+1 day');
 		}
 	}
 
@@ -158,15 +154,20 @@ class IcalEvent extends IcalComponent {
 			$properties[self::KEY_URL] = $this->url->__toString();
 		}
 
-		$properties[self::KEY_DTSTART] = $this->buildDateTimeValue($this->dateStart);
-		$properties[self::KEY_DTEND] = $this->buildDateTimeValue($this->dateEnd);
+		$properties[self::KEY_DTSTART] = $this->buildDateTimeValue($this->dateStart, false);
+		$properties[self::KEY_DTEND] = $this->buildDateTimeValue($this->dateEnd, true);
 		$properties[self::KEY_DTSTAMP] = (new \DateTime('now', new \DateTimeZone('UTC')))->format("Ymd\THis\Z");
 
 		return $properties;
 	}
 
-	private function buildDateTimeValue(\DateTime $dateTime): string {
+	private function buildDateTimeValue(\DateTime $dateTime, bool $isEndDate): string {
 		if ($this->isTimeOmitted()) {
+			if ($isEndDate) {
+				$dateTimeNew = clone $dateTime;
+				$dateTimeNew->modify('+1 day');
+				return $dateTimeNew->format("Ymd");
+			}
 			return $dateTime->format('Ymd');
 		}
 		if ($this->includeTimezone) {
