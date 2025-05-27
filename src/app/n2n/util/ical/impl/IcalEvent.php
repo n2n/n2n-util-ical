@@ -18,26 +18,17 @@ class IcalEvent extends IcalComponent {
 	const KEY_DTEND = 'DTEND';
 	const KEY_URL = 'URL';
 
-	private string $uid;
-	private \DateTime $dateStart;
-	private ?\DateTime $dateEnd;
 	private ?string $summary = null;
 	private ?string $description = null;
 	private ?string $location = null;
 	private ?Url $url = null;
 	private bool $includeTimezone = false;
 
-	public function __construct(string $uid, \DateTime $dateStart, ?\DateTime $dateEnd = null, private bool $timeOmitted = true) {
-		$this->uid = $uid;
-		$this->dateStart = $dateStart;
-
-		if (null !== $dateEnd) {
-			$this->dateEnd = $dateEnd;
-		} else if (!$timeOmitted) {
-			$this->dateEnd = clone $dateStart;
-			$this->dateEnd->setTime(23, 59, 59);
-		} else {
-			$this->dateEnd = clone $dateStart;
+	public function __construct(private string $uid, private \DateTimeImmutable $startDate,
+			private ?\DateTimeImmutable $endDate = null, private bool $timeOmitted = true) {
+		if ($this->endDate !== null && $this->startDate > $this->endDate) {
+			throw new \InvalidArgumentException('Start date (' . $this->startDate->format(DATE_ATOM) . ')'
+					. ' is later than end date (' . $this->endDate->format(DATE_ATOM) . ')');
 		}
 	}
 
@@ -50,21 +41,21 @@ class IcalEvent extends IcalComponent {
 		return $this;
 	}
 
-	public function getDateStart(): \DateTime {
-		return $this->dateStart;
+	public function getStartDate(): \DateTimeImmutable {
+		return $this->startDate;
 	}
 
-	public function setDateStart(\DateTime $dateStart): static {
-		$this->dateStart = $dateStart;
+	public function setStartDate(\DateTimeImmutable $startDate): static {
+		$this->startDate = $startDate;
 		return $this;
 	}
 
-	public function getDateEnd(): ?\DateTime {
-		return $this->dateEnd;
+	public function getEndDate(): ?\DateTimeImmutable {
+		return $this->endDate;
 	}
 
-	public function setDateEnd(\DateTime $dateEnd): static {
-		$this->dateEnd = $dateEnd;
+	public function setEndDate(\DateTimeImmutable $endDate): static {
+		$this->endDate = $endDate;
 		return $this;
 	}
 
@@ -154,28 +145,27 @@ class IcalEvent extends IcalComponent {
 			$properties[self::KEY_URL] = $this->url->__toString();
 		}
 
-		$properties[self::KEY_DTSTART] = $this->buildDateTimeValue($this->dateStart, false);
-		$properties[self::KEY_DTEND] = $this->buildDateTimeValue($this->dateEnd, true);
-		$properties[self::KEY_DTSTAMP] = (new \DateTime('now', new \DateTimeZone('UTC')))->format("Ymd\THis\Z");
+		$properties[self::KEY_DTSTART] = $this->buildDateTimeValue($this->startDate, false);
+		$properties[self::KEY_DTEND] = $this->buildDateTimeValue($this->endDate ?? $this->startDate, true);
+		$properties[self::KEY_DTSTAMP] = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format("Ymd\THis\Z");
 
 		return $properties;
 	}
 
-	private function buildDateTimeValue(\DateTime $dateTime, bool $isEndDate): string {
+	private function buildDateTimeValue(\DateTimeImmutable $dateTime, bool $isEndDate): string {
 		if ($this->isTimeOmitted()) {
 			if ($isEndDate) {
-				$dateTimeNew = clone $dateTime;
-				$dateTimeNew->modify('+1 day');
-				return $dateTimeNew->format("Ymd");
+				return $dateTime->modify('+1 day')->format("Ymd");
 			}
 			return $dateTime->format('Ymd');
 		}
+
 		if ($this->includeTimezone) {
-			$utcDateTime = clone $dateTime;
-			$utcDateTime->setTimezone(new \DateTimeZone('UTC'));
+			$utcDateTime = $dateTime->setTimezone(new \DateTimeZone('UTC'));
 
 			return $utcDateTime->format("Ymd\THis\Z");
 		}
+
 		return $dateTime->format('Ymd\THis');
 	}
 

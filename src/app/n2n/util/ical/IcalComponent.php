@@ -23,7 +23,9 @@ abstract class IcalComponent implements Downloadable {
 		$contents .= self::KEY_PRODID . self::KEY_VALUE_SEPARATOR . $this->productId . self::NL;
 		$contents .= self::KEY_BEGIN . self::KEY_VALUE_SEPARATOR . $type . self::NL;
 		foreach ($this->getProperties() as $key => $value) {
-			if (empty($key) || empty($value)) continue;
+			if (empty($key) || empty($value)) {
+				continue;
+			}
 			$contents .= $key . self::KEY_VALUE_SEPARATOR . $value . self::NL;
 		}
 		$contents .= self::KEY_END . self::KEY_VALUE_SEPARATOR . $type . self::NL;
