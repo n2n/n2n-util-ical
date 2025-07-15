@@ -98,6 +98,8 @@ class IcalEventTest extends TestCase {
 		$ob = new OutputBuffer();
 		$ob->start();
 		$icalEvent = new IcalEvent('uidString', new \DateTimeImmutable('2025-05-02T05:02:00'));
+		$icalEvent->setDescription('this is a description, this is a description 
+		this is a description; this is a description this is a description this is a description this is a description');
 		$icalEvent->out();
 		$ob->end();
 
