@@ -3,8 +3,13 @@
 namespace n2n\util\ical;
 
 use n2n\util\ical\impl\IcalEvent;
+use n2n\util\ical\impl\IcalCalendar;
 
 class IcalComponents {
+
+	static function calendar(IcalEvent ...$events): IcalCalendar {
+		return new IcalCalendar($events);
+	}
 
 	static function event(string $uid, \DateTimeImmutable $dateStart, ?\DateTimeImmutable $dateEnd = null,
 			?string $summary = null, bool $allDay = true): IcalEvent {

@@ -4,8 +4,9 @@ namespace n2n\util\ical\impl;
 
 use n2n\util\uri\Url;
 use n2n\util\ical\IcalComponent;
+use n2n\util\io\Downloadable;
 
-class IcalEvent extends IcalComponent {
+class IcalEvent implements Downloadable {
 
 	const TYPE = 'VEVENT';
 
@@ -169,4 +170,35 @@ class IcalEvent extends IcalComponent {
 		return $dateTime->format('Ymd\THis');
 	}
 
+	function toCalendar(): IcalCalendar {
+		return new IcalCalendar([$this]);
+	}
+
+	function getName(): string {
+		return 'event.ics';
+	}
+
+	function getMimeType(): string {
+		return $this->toCalendar()->getMimeType();
+	}
+
+	function getSize(): int {
+		return $this->toCalendar()->getSize();
+	}
+
+	function getLastModified(): ?\DateTime {
+		return $this->toCalendar()->getLastModified();
+	}
+
+	function buildHash(): string {
+		return $this->toCalendar()->buildHash();
+	}
+
+	function getContents(): string {
+		return $this->toCalendar()->getContents();
+	}
+
+	function out(): void {
+		$this->toCalendar()->out();
+	}
 }

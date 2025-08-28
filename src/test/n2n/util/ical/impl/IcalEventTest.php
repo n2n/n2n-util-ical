@@ -70,8 +70,8 @@ class IcalEventTest extends TestCase {
 				->setUrl('https://appagic.test')
 				->setDescription('this is a description')
 				->setSummary('this is a summary')
-				->setLocation('location text')
-				->setProductId('product id');
+				->setLocation('location text');
+		$icalCalendar = $icalEvent->toCalendar()->setProductId('product id');
 
 		$this->assertEquals('uid', $icalEvent->getUid());
 		$this->assertEquals('2025-05-02T05:08:00', $icalEvent->getStartDate()->format('Y-m-d\TH:i:s'));
@@ -91,7 +91,7 @@ class IcalEventTest extends TestCase {
 
 		$this->assertEquals('text/calendar', $icalEvent->getMimeType());
 		$this->assertEquals(strlen($icalEvent->getContents()), $icalEvent->getSize());
-		$this->assertStringContainsString('product id',$icalEvent->getContents());
+		$this->assertStringContainsString('product id', $icalCalendar->getContents());
 	}
 
 	function testIcalEventOut(): void {

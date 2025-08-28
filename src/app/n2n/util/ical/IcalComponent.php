@@ -6,7 +6,6 @@ use n2n\util\io\Downloadable;
 use n2n\util\HashUtils;
 
 abstract class IcalComponent implements Downloadable {
-	const TYPE_CALENDAR = 'VCALENDAR';
 	const KEY_BEGIN = 'BEGIN';
 	const KEY_END = 'END';
 	const KEY_VERSION = 'VERSION';
@@ -18,18 +17,16 @@ abstract class IcalComponent implements Downloadable {
 
 	public function getContents(): string {
 		$type = $this->getType();
-		$contents = self::KEY_BEGIN . self::KEY_VALUE_SEPARATOR . self::TYPE_CALENDAR . self::NL;
+		$contents = $this->wrapIcsLine(self::KEY_BEGIN . self::KEY_VALUE_SEPARATOR . $this->escapeIcsValue($type)) . self::NL;
 		$contents .= self::KEY_VERSION . self::KEY_VALUE_SEPARATOR . self::VERSION . self::NL;
-		$contents .= self::KEY_PRODID . self::KEY_VALUE_SEPARATOR . $this->productId . self::NL;
-		$contents .= self::KEY_BEGIN . self::KEY_VALUE_SEPARATOR . $this->escapeIcsValue($type) . self::NL;
+		$contents .= $this->wrapIcsLine(self::KEY_PRODID . self::KEY_VALUE_SEPARATOR . $this->escapeIcsValue($this->productId)) . self::NL;
 		foreach ($this->getProperties() as $key => $value) {
 			if (empty($key) || empty($value)) {
 				continue;
 			}
 			$contents .= $this->wrapIcsLine($key . self::KEY_VALUE_SEPARATOR . $this->escapeIcsValue($value)) . self::NL;
 		}
-		$contents .= self::KEY_END . self::KEY_VALUE_SEPARATOR . $this->escapeIcsValue($type) . self::NL;
-		$contents .= self::KEY_END . self::KEY_VALUE_SEPARATOR . self::TYPE_CALENDAR . self::NL;
+		$contents .= $this->wrapIcsLine(self::KEY_END . self::KEY_VALUE_SEPARATOR . $this->escapeIcsValue($type)) . self::NL;
 		return $contents;
 	}
 
@@ -57,7 +54,7 @@ abstract class IcalComponent implements Downloadable {
 	}
 
 	function getName(): string {
-		return 'event.ics';
+		return 'events.ics';
 	}
 
 	public function getMimeType(): string {
