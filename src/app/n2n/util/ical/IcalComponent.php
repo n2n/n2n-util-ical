@@ -26,7 +26,7 @@ abstract class IcalComponent implements Downloadable {
 			if (empty($key) || empty($value)) {
 				continue;
 			}
-			$contents .= $key . self::KEY_VALUE_SEPARATOR . $this->escapeIcsValue($value) . self::NL;
+			$contents .= $this->wrapIcsLine($key . self::KEY_VALUE_SEPARATOR . $this->escapeIcsValue($value)) . self::NL;
 		}
 		$contents .= self::KEY_END . self::KEY_VALUE_SEPARATOR . $this->escapeIcsValue($type) . self::NL;
 		$contents .= self::KEY_END . self::KEY_VALUE_SEPARATOR . self::TYPE_CALENDAR . self::NL;
@@ -35,10 +35,12 @@ abstract class IcalComponent implements Downloadable {
 
 	private function escapeIcsValue(string $text): string {
 		// escape special chars
-		$escaped = str_replace(['\\', ';', ',', "\n", "\r"], ['\\\\', '\;', '\,', '\\n', ''], $text);
+		return str_replace(['\\', ';', ',', "\n", "\r"], ['\\\\', '\;', '\,', '\\n', ''], $text);
+	}
 
+	private function wrapIcsLine(string $line): string {
 		// soft linebreak after 75 chars with Folding (RFC 5545)
-		return wordwrap($escaped, 75, "\r\n ", true);
+		return wordwrap($line, 75, "\r\n ", true);
 	}
 
 	public function setProductId(string $productId): static {
