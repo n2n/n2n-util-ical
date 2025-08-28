@@ -4,6 +4,7 @@ namespace n2n\util\ical;
 
 use n2n\util\io\Downloadable;
 use n2n\util\HashUtils;
+use n2n\util\type\ArgUtils;
 
 abstract class IcalComponent implements Downloadable {
 	const KEY_BEGIN = 'BEGIN';
@@ -20,11 +21,15 @@ abstract class IcalComponent implements Downloadable {
 		$contents = $this->wrapIcsLine(self::KEY_BEGIN . self::KEY_VALUE_SEPARATOR . $this->escapeIcsValue($type)) . self::NL;
 		$contents .= self::KEY_VERSION . self::KEY_VALUE_SEPARATOR . self::VERSION . self::NL;
 		$contents .= $this->wrapIcsLine(self::KEY_PRODID . self::KEY_VALUE_SEPARATOR . $this->escapeIcsValue($this->productId)) . self::NL;
-		foreach ($this->getProperties() as $key => $value) {
-			if (empty($key) || empty($value)) {
+
+		$properties = $this->getProperties();
+		ArgUtils::valArrayReturn($properties, $this, 'getProperties', IcalProperty::class);
+		foreach ($properties as $property) {
+			if ($property->isEmpty()) {
 				continue;
 			}
-			$contents .= $this->wrapIcsLine($key . self::KEY_VALUE_SEPARATOR . $this->escapeIcsValue($value)) . self::NL;
+			$contents .= $this->wrapIcsLine($property->key . self::KEY_VALUE_SEPARATOR
+							. $this->escapeIcsValue($property->value)) . self::NL;
 		}
 		$contents .= $this->wrapIcsLine(self::KEY_END . self::KEY_VALUE_SEPARATOR . $this->escapeIcsValue($type)) . self::NL;
 		return $contents;
@@ -47,6 +52,9 @@ abstract class IcalComponent implements Downloadable {
 
 	public abstract function getType(): string;
 
+	/**
+	 * @return IcalProperty[]
+	 */
 	public abstract function getProperties(): array;
 
 	public function __toString() {

@@ -5,6 +5,8 @@ namespace n2n\util\ical\impl;
 use n2n\util\uri\Url;
 use n2n\util\ical\IcalComponent;
 use n2n\util\io\Downloadable;
+use n2n\util\ical\IcalProperty;
+use n2n\util\ex\ExUtils;
 
 class IcalEvent implements Downloadable {
 
@@ -125,30 +127,33 @@ class IcalEvent implements Downloadable {
 		return self::TYPE;
 	}
 
+	/**
+	 * @return IcalProperty[]
+	 */
 	public function getProperties(): array {
-		$properties = array();
+		$properties = [];
 
 		if (null !== $this->summary) {
-			$properties[self::KEY_SUMMARY] = $this->summary;
+			$properties[] = new IcalProperty(self::KEY_SUMMARY, $this->summary);
 		}
 
 		if (null !== $this->description) {
-			$properties[self::KEY_DESCRIPTION] = $this->description;
+			$properties[] = new IcalProperty(self::KEY_DESCRIPTION, $this->description);
 		}
 
 		if (null !== $this->location) {
-			$properties[self::KEY_LOCATION] = $this->location;
+			$properties[] = new IcalProperty(self::KEY_LOCATION, $this->location);
 		}
 
-		$properties[self::KEY_UID] = $this->uid;
+		$properties[] = new IcalProperty(self::KEY_UID, $this->uid);
 
 		if (null !== $this->url) {
-			$properties[self::KEY_URL] = $this->url->__toString();
+			$properties[] = new IcalProperty(self::KEY_URL, $this->url->__toString());
 		}
 
-		$properties[self::KEY_DTSTART] = $this->buildDateTimeValue($this->startDate, false);
-		$properties[self::KEY_DTEND] = $this->buildDateTimeValue($this->endDate ?? $this->startDate, true);
-		$properties[self::KEY_DTSTAMP] = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->format("Ymd\THis\Z");
+		$properties[] = new IcalProperty(self::KEY_DTSTART, $this->buildDateTimeValue($this->startDate, false));
+		$properties[] = new IcalProperty(self::KEY_DTEND, $this->buildDateTimeValue($this->endDate ?? $this->startDate, true));
+		$properties[] = new IcalProperty(self::KEY_DTSTAMP, (ExUtils::try(fn () => new \DateTimeImmutable('now', new \DateTimeZone('UTC'))))->format("Ymd\THis\Z"));
 
 		return $properties;
 	}

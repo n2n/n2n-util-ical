@@ -4,6 +4,7 @@ namespace n2n\util\ical\impl;
 
 use n2n\util\ical\IcalComponent;
 use n2n\util\type\ArgUtils;
+use n2n\util\ical\IcalProperty;
 
 class IcalCalendar extends IcalComponent {
 	const TYPE = 'VCALENDAR';
@@ -45,11 +46,9 @@ class IcalCalendar extends IcalComponent {
 		$properties = [];
 		foreach ($this->getEvents() as $event) {
 			$type = $event->getType();
-			$properties[self::KEY_BEGIN] = $type;
-			foreach ($event->getProperties() as $key => $value) {
-				$properties[$key] = $value;
-			}
-			$properties[self::KEY_END] = $type;
+			$properties[] = new IcalProperty(self::KEY_BEGIN, $type);
+			array_push($properties, ...$event->getProperties());
+			$properties[] = new IcalProperty(self::KEY_END, $type);
 		}
 
 		return $properties;
